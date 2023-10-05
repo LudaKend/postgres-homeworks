@@ -10,7 +10,7 @@ conn = psycopg2.connect(
     host='localhost',
     database='north',
     user='postgres',
-    password='180116_Psa'
+    password=PASSWORD
 )
 
 # создаем курсор
