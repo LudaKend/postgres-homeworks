@@ -5,6 +5,38 @@ import csv
 
 PASSWORD = os.getenv('FOR_POSTGRES')
 
+def write_data(table_name):
+    filename = table_name + '_data.csv'
+    #print(filename)
+    try:
+        path = f'../homework-1/north_data/{filename}'
+        with open(path) as f:
+            data_file = csv.DictReader(f)
+            for line in data_file:
+                if table_name == 'employees':
+                    cur.execute('INSERT INTO employees VALUES (%s, %s, %s, %s, %s, %s)', (line['employee_id'],
+                                                                                      line['first_name'],
+                                                                                      line['last_name'],
+                                                                                      line['title'],
+                                                                                      line['birth_date'],
+                                                                                      line['notes']))
+                elif table_name == 'customers':
+                    cur.execute('INSERT INTO customers VALUES (%s, %s, %s)', (line['customer_id'],
+                                                                              line['company_name'],
+                                                                              line['contact_name']))
+                elif table_name == 'orders':
+                    cur.execute('INSERT INTO orders VALUES (%s, %s, %s, %s, %s)', (line['order_id'],
+                                                                                   line['customer_id'],
+                                                                                   line['employee_id'],
+                                                                                   line['order_date'],
+                                                                                   line['ship_city']))
+    except psycopg2.errors.UniqueViolation:
+        print(f'запись с таким ключом уже есть в таблице {table_name}')
+    except psycopg2.errors.InFailedSqlTransaction:
+        print('текущая транзакция прервана, команды до конца блока транзакции игнорируются')
+    else:
+        conn.commit()
+
 #подключаемся к БД
 conn = psycopg2.connect(
     host='localhost',
@@ -17,55 +49,15 @@ conn = psycopg2.connect(
 cur = conn.cursor()
 
 # записываем данные в таблицы
-try:
-    filename = 'employees_data.csv'
-    path = f'../homework-1/north_data/{filename}'
-    with open(path) as f:
-        data_file = csv.DictReader(f)
-        for line in data_file:
-            cur.execute('INSERT INTO employees VALUES (%s, %s, %s, %s, %s, %s)', (line['employee_id'],
-                                                                                  line['first_name'],
-                                                                               line['last_name'],
-                                                                               line['title'],
-                                                                               line['birth_date'],
-                                                                               line['notes']))
-except psycopg2.errors.UniqueViolation:
-    print('запись с таким ключом уже есть в таблице employees')
-else:
-    conn.commit()
+table_name = 'employees'
+write_data(table_name)
+table_name = 'customers'
+write_data(table_name)
+table_name = 'orders'
+write_data(table_name)
 
-finally:
-    try:
-        filename = 'customers_data.csv'
-        path = f'../homework-1/north_data/{filename}'
-        with open(path) as f:
-            data_file = csv.DictReader(f)
-            for line in data_file:
-                cur.execute('INSERT INTO customers VALUES (%s, %s, %s)', (line['customer_id'],
-                                                                                 line['company_name'],
-                                                                                 line['contact_name']))
-    except psycopg2.errors.InFailedSqlTransaction:
-        print('запись с таким ключом уже есть в таблице customers')
-    else:
-        conn.commit()
-    finally:
-        try:
-            filename = 'orders_data.csv'
-            path = f'../homework-1/north_data/{filename}'
-            with open(path) as f:
-                data_file = csv.DictReader(f)
-                for line in data_file:
-                    cur.execute('INSERT INTO orders VALUES (%s, %s, %s, %s, %s)', (line['order_id'],
-                                                                              line['customer_id'],
-                                                                              line['employee_id'],
-                                                                       line['order_date'],
-                                                                       line['ship_city']))
-        except psycopg2.errors.InFailedSqlTransaction:
-            print('запись с таким ключом уже есть в таблице orders')
-        else:
-            conn.commit()
-        finally:
-            cur.close()
+cur.close()
+conn.close()
 
 # # создаем курсор
 # cur = conn.cursor()
