@@ -8,34 +8,36 @@ PASSWORD = os.getenv('FOR_POSTGRES')
 def write_data(table_name):
     filename = table_name + '_data.csv'
     #print(filename)
-    try:
-        path = f'../homework-1/north_data/{filename}'
-        with open(path) as f:
-            data_file = csv.DictReader(f)
-            for line in data_file:
-                if table_name == 'employees':
-                    cur.execute('INSERT INTO employees VALUES (%s, %s, %s, %s, %s, %s)', (line['employee_id'],
+    #try:
+    path = f'../homework-1/north_data/{filename}'
+    with open(path) as f:
+        data_file = csv.DictReader(f)
+        for line in data_file:
+            cur = conn.cursor()  #создаем курсор на каждую запись таблицы
+            if table_name == 'employees':
+                cur.execute('INSERT INTO employees VALUES (%s, %s, %s, %s, %s, %s)', (line['employee_id'],
                                                                                       line['first_name'],
                                                                                       line['last_name'],
                                                                                       line['title'],
                                                                                       line['birth_date'],
                                                                                       line['notes']))
-                elif table_name == 'customers':
-                    cur.execute('INSERT INTO customers VALUES (%s, %s, %s)', (line['customer_id'],
+            elif table_name == 'customers':
+                cur.execute('INSERT INTO customers VALUES (%s, %s, %s)', (line['customer_id'],
                                                                               line['company_name'],
                                                                               line['contact_name']))
-                elif table_name == 'orders':
-                    cur.execute('INSERT INTO orders VALUES (%s, %s, %s, %s, %s)', (line['order_id'],
+            elif table_name == 'orders':
+                cur.execute('INSERT INTO orders VALUES (%s, %s, %s, %s, %s)', (line['order_id'],
                                                                                    line['customer_id'],
                                                                                    line['employee_id'],
                                                                                    line['order_date'],
                                                                                    line['ship_city']))
-    except psycopg2.errors.UniqueViolation:
-        print(f'запись с таким ключом уже есть в таблице {table_name}')
-    except psycopg2.errors.InFailedSqlTransaction:
-        print('текущая транзакция прервана, команды до конца блока транзакции игнорируются')
-    else:
-        conn.commit()
+    # except psycopg2.errors.UniqueViolation:
+    #     print(f'запись с таким ключом уже есть в таблице {table_name}')
+    # except psycopg2.errors.InFailedSqlTransaction:
+    #     print('текущая транзакция прервана, команды до конца блока транзакции игнорируются')
+    # else:
+            cur.close()
+            conn.commit()
 
 #подключаемся к БД
 conn = psycopg2.connect(
@@ -46,7 +48,7 @@ conn = psycopg2.connect(
 )
 
 # создаем курсор
-cur = conn.cursor()
+# cur = conn.cursor()
 
 # записываем данные в таблицы
 table_name = 'employees'
@@ -56,11 +58,9 @@ write_data(table_name)
 table_name = 'orders'
 write_data(table_name)
 
-cur.close()
-conn.close()
-
-# # создаем курсор
+# создаем курсор
 # cur = conn.cursor()
+
 # # проверяем записи в таблице employees
 # cur.execute("SELECT *FROM employees")
 # rows = cur.fetchall()
@@ -78,3 +78,4 @@ conn.close()
 #     print(row)
 
 
+conn.close()
