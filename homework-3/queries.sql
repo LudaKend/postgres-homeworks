@@ -15,7 +15,8 @@ WHERE employees.city = 'London' AND customers.city = 'London' AND shippers.shipp
 
 SELECT product_name, units_in_stock, contact_name, phone from products
 JOIN suppliers USING (supplier_id)
-WHERE discontinued = 0 AND (category_id = 2 OR category_id = 4)
+JOIN categories USING (category_id)
+WHERE discontinued = 0 AND category_name IN ('Dairy Products', 'Condiments')
 ORDER BY products.units_in_stock
 LIMIT 25
 
