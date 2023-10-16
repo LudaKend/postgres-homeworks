@@ -15,18 +15,15 @@ def write_data(table_name):
         for line in data_file:
             cur = conn.cursor()  #создаем курсор на каждую запись таблицы
             if table_name == 'employees':
-                cur.execute('INSERT INTO employees VALUES (%s, %s, %s, %s, %s, %s)', (line['employee_id'],
-                                                                                      line['first_name'],
-                                                                                      line['last_name'],
-                                                                                      line['title'],
-                                                                                      line['birth_date'],
-                                                                                      line['notes']))
+                cur.execute('INSERT INTO employees VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING',
+                            (line['employee_id'], line['first_name'], line['last_name'], line['title'],
+                             line['birth_date'], line['notes']))
             elif table_name == 'customers':
-                cur.execute('INSERT INTO customers VALUES (%s, %s, %s)', (line['customer_id'],
+                cur.execute('INSERT INTO customers VALUES (%s, %s, %s) ON CONFLICT DO NOTHING', (line['customer_id'],
                                                                               line['company_name'],
                                                                               line['contact_name']))
             elif table_name == 'orders':
-                cur.execute('INSERT INTO orders VALUES (%s, %s, %s, %s, %s)', (line['order_id'],
+                cur.execute('INSERT INTO orders VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING', (line['order_id'],
                                                                                    line['customer_id'],
                                                                                    line['employee_id'],
                                                                                    line['order_date'],
