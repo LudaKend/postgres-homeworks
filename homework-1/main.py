@@ -15,7 +15,8 @@ def write_data(table_name):
         for line in data_file:
             cur = conn.cursor()  #создаем курсор на каждую запись таблицы
             if table_name == 'employees':
-                cur.execute('INSERT INTO employees VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING',
+                cur.execute('INSERT INTO employees(employee_id, first_name, last_name, title, birth_date, notes) '
+                            'VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING',
                             (line['employee_id'], line['first_name'], line['last_name'], line['title'],
                              line['birth_date'], line['notes']))
             elif table_name == 'customers':
@@ -23,7 +24,8 @@ def write_data(table_name):
                                                                               line['company_name'],
                                                                               line['contact_name']))
             elif table_name == 'orders':
-                cur.execute('INSERT INTO orders VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING', (line['order_id'],
+                cur.execute('INSERT INTO orders(order_id, customer_id, employee_id, order_date, ship_city)'
+                            ' VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING', (line['order_id'],
                                                                                    line['customer_id'],
                                                                                    line['employee_id'],
                                                                                    line['order_date'],
